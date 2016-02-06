@@ -110,8 +110,6 @@ do
 			break
 		end
 
-		print("Loading module " .. line .. "...")
-
 		local ok, err = system.loadModule(line)
 		if not ok then
 			printError(err)
