@@ -29,23 +29,48 @@ function system.loadfile(file, env)
 	assert(env == nil or type(env) == "table", "expected string, [table]")
 
 	local f = fs.open(file, "rb")
+	local func, err
 
 	if load then
 		local name = fs.getName(file)
 		local data = readBinaryFile(f)
-		return load(data, name, nil, env or _G)
+		func, err = load(data, name, nil, env or _G)
 	else
 		local f = fs.open(file, "rb")
 		local data = readBinaryFile(f)
-		return setfenv(loadstring(data), env or _G)
+		func, err = loadstring(data)
+		setfenv(func, env or _G)
 	end
 
 	f.close()
+
+	return func, err
+end
+
+-- loads a module by its name
+-- TODO: Module path?
+function system.loadModule(name)
+	local e = setmetatable({system = system}, {__index = _G})
+	local func, err = system.loadfile(".system/" .. name .. ".lua", e)
+	return func ~= nil, err
 end
 
 -- load core modules
-local e = setmetatable({system = system}, {__index = _G})
-system.loadfile(".system/paths.lua", e)()
+do
+	local f = fs.open("/etc/modules.cfg",  "r")
+
+	while true do
+		local line = f.readLine()
+		if line == nil then
+			break
+		end
+
+		local ok, err = system.loadModule(line)
+		if not ok then
+			printError(err)
+		end
+	end
+end
 
 _G.system = {}
 for k, v in pairs(system) do
