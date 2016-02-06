@@ -35,7 +35,7 @@ local function getProcess(pid)
 end
 
 -- makes a new process and returns its pid
-function module.new(file, args)
+function module.new(file, ...)
 	if not fs.exists(file) then
 		return error("procNew: no such file")
 	end
@@ -45,12 +45,40 @@ function module.new(file, args)
 		path = file;
 		pid = pid;
 		cwd = fs.getDir(file);
-		status = system.pstatus.ready;
-		cmdLine = file;
+		status = module.pstatus.ready;
 	}
 
-	if args ~= nil then
-		ptable.cmdLine = ptable.cmdLine .. " " .. args
+	-- don't replace with table.concat, we need to handle
+	-- stupid arguments
+	ptable.cmdLine = file .. " "
+
+	for _,v in pairs({ ... }) do
+		ptable.cmdLine = ptable.cmdLine .. tostring(v)
+	end
+
+	local func, err = loadfile(file)
+	if func == nil then
+		printError(err)
+	end
+
+	ptable.coroutine = coroutine.create(func)
+	
+	-- we have to resume once on creation
+	-- here, we also pass in the program args
+	local resumeData = { coroutine.resume(ptable.coroutine, ...) }
+	local ok = resumeData[1]
+
+	if not ok then
+		printError(resumeData[2])
+		return nil, resumeData[2]
+	end
+
+	local evtFilters = { select(2, table.unpack(resumeData)) }
+
+	if #evtFilters == 0 then
+		ptable.eventFilters = nil
+	else
+		ptable.eventFilters = evtFilters
 	end
 
 	processes[pid] = ptable
@@ -94,6 +122,54 @@ end
 function module.kill(pid)
 	-- TODO: Inform the process of its murder
 	processes[pid] = nil
+end
+
+local function checkProcessStatus(proc)
+	if coroutine.status(proc.coroutine) == "dead" then
+		-- sorry for your loss
+		proc.status = module.pstatus.done
+		return false
+	end
+
+	return true
+end
+
+-- resumes each process with the given event data
+function module.distribute(...)
+	local killQueue = {} -- dang that sounds brutal af
+
+	for _,v in pairs(processes) do
+		-- don't resume if the coroutine has died
+		if checkProcessStatus(v) then
+			local resumeData = { coroutine.resume(v.coroutine, ...) }
+			local ok = resumeData[1]
+
+			if not ok then
+				printError(resumeData[2])
+			else
+				local eventFilters = { select(2, table.unpack(resumeData)) }
+
+				if #eventFilters == 0 then
+					v.eventFilters = nil
+				else
+					v.eventFilters = eventFilters
+				end
+			end
+		else
+			-- if a dead coroutine has somehow survived, kill its process
+			killQueue[#killQueue + 1] = v.pid
+		end
+
+		-- check if the coroutine has died after resuming
+		if not checkProcessStatus(v) then
+			killQueue[#killQueue + 1] = v.pid
+		end
+	end
+
+	-- carry on with the execution
+	for _,v in pairs(killQueue) do
+		module.kill(v)
+	end
 end
 
 return module

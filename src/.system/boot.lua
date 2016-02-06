@@ -1,6 +1,10 @@
 -- .system/boot.lua
 -- loads core functions and the system API
 
+-- wash the dirt off the term
+term.clear()
+term.setCursorPos(1, 1)
+
 local system = {}
 
 system.version = 0.1
@@ -127,6 +131,21 @@ do
 	end
 
 	f.close()
+end
+
+-- run shell
+-- TODO: we should probably move this out of the kernel code
+do
+	local shellPID = system.procmgr.new("rom/programs/shell")
+end
+
+-- The OS main loop
+do
+	while true do
+		-- distributes any incoming events across all processes
+		local evt = { os.pullEventRaw() }
+		system.procmgr.distribute(table.unpack(evt))
+	end
 end
 
 _G.system = system

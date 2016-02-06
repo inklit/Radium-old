@@ -1,4 +1,20 @@
 -- startup
 -- Run on startup, simply runs the system bootloader
 
-dofile(".system/boot.lua")
+local bootFile = ".system/boot.lua"
+
+-- TLCO taken from here:
+-- http://www.computercraft.info/forums2/index.php?/topic/14785-a-smaller-top-level-coroutine-override/
+
+local r = rednet.run
+function rednet.run()
+    rednet.run = r
+    error("",0)
+end
+
+local p = printError
+function _G.printError()
+    _G.printError = p
+    local ok, err = pcall(function() assert(loadfile(bootFile))() end) -- mildly complex series of calls to present errors rather than actually error here
+    if not ok then printError(err) end
+end
