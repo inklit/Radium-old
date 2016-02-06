@@ -133,6 +133,8 @@ do
 	f.close()
 end
 
+_G.system = system
+
 -- run shell
 -- TODO: we should probably move this out of the kernel code
 do
@@ -147,5 +149,3 @@ do
 		system.procmgr.distribute(table.unpack(evt))
 	end
 end
-
-_G.system = system

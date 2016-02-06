@@ -1,20 +1,22 @@
 -- startup
--- Run on startup, simply runs the system bootloader
+-- Run on startup, performs TLCO and then runs bootloader
 
 local bootFile = ".system/boot.lua"
+local recoveryFile = ".system/recovery.lua"
 
--- TLCO taken from here:
--- http://www.computercraft.info/forums2/index.php?/topic/14785-a-smaller-top-level-coroutine-override/
-
-local r = rednet.run
-function rednet.run()
-    rednet.run = r
-    error("",0)
-end
-
-local p = printError
-function _G.printError()
-    _G.printError = p
-    local ok, err = pcall(function() assert(loadfile(bootFile))() end) -- mildly complex series of calls to present errors rather than actually error here
-    if not ok then printError(err) end
+if not _TLCO then
+	_G._TLCO = true
+	local _pe = _G.printError
+	function _G.printError()
+		_G.printError = _pe
+		local ok, err = pcall(assert(loadfile(bootFile)))
+		if not ok then
+			pcall(function()
+				local recovery = loadfile(recoveryFile)
+				recovery(err)
+			end)
+			os.shutdown()
+		end
+	end
+	os.queueEvent("terminate")
 end
