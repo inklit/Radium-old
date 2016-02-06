@@ -4,11 +4,9 @@
 local module = {}
 
 -- specifies paths to search for binaries in
--- paths can direct to files or directories
 local PATH = "/bin:.:/rom/programs"
 
 -- specifies paths to search for libraries in
--- paths can direct to files or directories
 local LIB_PATH = "/lib:."
 
 -- specifies patterns to match filenames to when searching for binaries
@@ -60,19 +58,5 @@ function module.setLibExtensions(e)
 	assert(type(e) == "string", "expected string")
 	LIB_EXT = e
 end
-
--- create resolve functions
-
-local function combine(base, path)
-	-- combines the path with the base unless path is absolute
-	local s = path:sub(1, 1)
-	if s == "/" or s == "\\" then
-		return path
-	else
-		return fs.combine(base, path)
-	end
-end
-
--- TODO
 
 return module

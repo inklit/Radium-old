@@ -47,6 +47,32 @@ function system.loadfile(file, env)
 	return func, err
 end
 
+-- loads an absolute path as an API
+function system.require(path, env)
+	-- sanity checking
+	assert(type(path) == "string", "expected string, [table]")
+	assert(env == nil or type(env) == "table", "expected string, [table]")
+	assert(fs.exists(path), "file non-existant")
+	assert(not fs.isDir(path), "cannot load directory")
+
+	local env = env or setmetatable({}, {__index = _G})
+	local f = system.loadfile(path, env)
+	local ok, out = pcall(f)
+	if not ok then
+		return false, out
+	else
+		if type(out) == "table" then
+			return out
+		else
+			local ret = {}
+			for k, v in pairs(env) do
+				ret[k] = v
+			end
+			return ret
+		end
+	end
+end
+
 -- loads a module by its name into the system table
 -- TODO: Module path?
 function system.loadModule(name)
@@ -64,7 +90,7 @@ function system.loadModule(name)
 	if func == nil then
 		return false, err
 	end
-	ok, out = pcall(func)
+	local ok, out = pcall(func)
 
 	if not ok then
 		return false, out

@@ -1,5 +1,5 @@
 -- bin/compile.lua
--- compiles a program, packaging any non-standard libraries to provide CraftOS compatibility
+-- compiles a program to Lua bytecode
 
 local filename = ...
 if filename == nil then
