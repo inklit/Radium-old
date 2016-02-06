@@ -77,24 +77,34 @@ end
 -- TODO: Module path?
 function system.loadModule(name)
 	assert(type(name) == "string", "expected string")
-	local e = setmetatable({ system = system }, { __index = _G })
+
 	local filename = fs.combine(".system", name .. ".lua")
 	assert(fs.exists(filename), "module " .. name .. " not found")
 	assert(not fs.isDir(filename), "module " .. name .. " not found")
+
+	local e = setmetatable({ system = system }, { __index = _G })
 
 	if system[name] then
 		return true, "module already loaded"
 	end
 
 	local func, err = system.loadfile(filename, e)
+
 	if func == nil then
 		return false, err
 	end
+
 	local ok, out = pcall(func)
 
 	if not ok then
 		return false, out
 	else
+		setmetatable(out, {
+			__tostring = function()
+				return "Core Module (" .. name .. ")"
+			end
+		})
+
 		system[name] = out
 		return true
 	end
