@@ -50,9 +50,15 @@ end
 -- loads a module by its name
 -- TODO: Module path?
 function system.loadModule(name)
-	local e = setmetatable({system = system}, {__index = _G})
+	local e = setmetatable({ system = system }, { __index = _G })
 	local func, err = system.loadfile(".system/" .. name .. ".lua", e)
-	return func ~= nil, err
+
+	if func == nil then
+		return false, err
+	end
+	
+	func()
+	return true
 end
 
 -- load core modules
@@ -64,6 +70,8 @@ do
 		if line == nil then
 			break
 		end
+
+		print("Loading module " .. line .. "...")
 
 		local ok, err = system.loadModule(line)
 		if not ok then
