@@ -35,7 +35,7 @@ local function getProcess(pid)
 end
 
 -- makes a new process and returns its pid
-function module.procNew(file, args)
+function module.new(file, args)
 	if not fs.exists(file) then
 		return error("procNew: no such file")
 	end
@@ -58,20 +58,20 @@ function module.procNew(file, args)
 end
 
 -- checks if a certain status (system.pstatus) applies to the given pid
-function module.procCheckStatus(pid, _status)
+function module.checkStatus(pid, _status)
 	local proc = getProcess(pid)
 	local status = proc.status
 	return _bit.band(status, _status) == _status
 end
 
 -- returns the current working directory of a pid
-function module.procCWD(pid)
+function module.getCWD(pid)
 	local proc = getProcess(pid)
 	return proc.cwd
 end
 
 -- changes the current working directory of a pid
-function module.procSetCWD(pid, dir)
+function module.setCWD(pid, dir)
 	if not fs.isDir(dir) then
 		return error("procSetCWD: no such directory")
 	end
@@ -80,18 +80,18 @@ function module.procSetCWD(pid, dir)
 	proc.cwd = dir
 end
 
-function module.procPath(pid)
+function module.getPath(pid)
 	local proc = getProcess(pid)
 	return proc.path
 end
 
 -- returns the command line a process was started with
-function module.procCmdLine(pid)
+function module.getCmdLine(pid)
 	local proc = getProcess(pid)
 	return proc.cmdLine
 end
 
-function module.procKill(pid)
+function module.kill(pid)
 	-- TODO: Inform the process of its murder
 	processes[pid] = nil
 end
