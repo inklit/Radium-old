@@ -5,6 +5,8 @@
 term.clear()
 term.setCursorPos(1, 1)
 
+error("asgags")
+
 local system = {}
 
 system.version = 0.1
