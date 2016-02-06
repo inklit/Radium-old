@@ -126,7 +126,7 @@ do
 
 		local ok, err = system.loadModule(line)
 		if not ok then
-			printError(err)
+			error(err)
 		end
 	end
 

@@ -35,7 +35,8 @@ local function getProcess(pid)
 end
 
 -- makes a new process and returns its pid
-function module.new(file, ...)
+function module.new(file, env, ...)
+	env = env or setmetatable({}, {__index = _G})
 	if not fs.exists(file) then
 		return error("procNew: no such file")
 	end
@@ -43,6 +44,7 @@ function module.new(file, ...)
 	local pid = makePID()
 	local ptable = {
 		path = file;
+		env = env;
 		pid = pid;
 		cwd = fs.getDir(file);
 		status = module.pstatus.ready;
@@ -56,7 +58,7 @@ function module.new(file, ...)
 		ptable.cmdLine = ptable.cmdLine .. tostring(v)
 	end
 
-	local func, err = loadfile(file)
+	local func, err = system.loadfile(file, env)
 	if func == nil then
 		printError(err)
 	end

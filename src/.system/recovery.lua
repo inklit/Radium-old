@@ -3,8 +3,6 @@
 
 local args = {...}
 
-term.clear()
-term.setCursorPos(1, 1)
 term.setCursorBlink(false)
 
 -- collect data
