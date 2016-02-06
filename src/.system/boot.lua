@@ -115,6 +115,8 @@ do
 			printError(err)
 		end
 	end
+
+	f.close()
 end
 
 _G.system = system
