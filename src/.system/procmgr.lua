@@ -1,12 +1,14 @@
 -- .system/procmgr.lua
 -- Provides a process-based multitasking system.
 
+local module = {}
+
 local processes = {}
 
 local nextPID = -1
 local _bit = bit32 or bit
 
-system.pstatus = {
+module.pstatus = {
 	-- atomic statuses
 	running 	= 1;	-- the process is running
 	suspended 	= 2;	-- the process has been suspended
@@ -33,7 +35,7 @@ local function getProcess(pid)
 end
 
 -- makes a new process and returns its pid
-function system.procNew(file, args)
+function module.procNew(file, args)
 	if not fs.exists(file) then
 		return error("procNew: no such file")
 	end
@@ -56,20 +58,20 @@ function system.procNew(file, args)
 end
 
 -- checks if a certain status (system.pstatus) applies to the given pid
-function system.procCheckStatus(pid, _status)
+function module.procCheckStatus(pid, _status)
 	local proc = getProcess(pid)
 	local status = proc.status
 	return _bit.band(status, _status) == _status
 end
 
 -- returns the current working directory of a pid
-function system.procCWD(pid)
+function module.procCWD(pid)
 	local proc = getProcess(pid)
 	return proc.cwd
 end
 
 -- changes the current working directory of a pid
-function system.procSetCWD(pid, dir)
+function module.procSetCWD(pid, dir)
 	if not fs.isDir(dir) then
 		return error("procSetCWD: no such directory")
 	end
@@ -78,18 +80,20 @@ function system.procSetCWD(pid, dir)
 	proc.cwd = dir
 end
 
-function system.procPath(pid)
+function module.procPath(pid)
 	local proc = getProcess(pid)
 	return proc.path
 end
 
 -- returns the command line a process was started with
-function system.procCmdLine(pid)
+function module.procCmdLine(pid)
 	local proc = getProcess(pid)
 	return proc.cmdLine
 end
 
-function system.procKill(pid)
+function module.procKill(pid)
 	-- TODO: Inform the process of its murder
 	processes[pid] = nil
 end
+
+return module

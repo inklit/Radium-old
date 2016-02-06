@@ -1,1 +1,4 @@
+-- startup
+-- Run on startup, simply runs the system bootloader
+
 dofile(".system/boot.lua")

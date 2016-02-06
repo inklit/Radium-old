@@ -1,5 +1,5 @@
 -- .system/boot.lua
--- Run on startup, loads core functions and the system API
+-- loads core functions and the system API
 
 local system = {}
 
@@ -47,18 +47,31 @@ function system.loadfile(file, env)
 	return func, err
 end
 
--- loads a module by its name
+-- loads a module by its name into the system table
 -- TODO: Module path?
 function system.loadModule(name)
+	assert(type(name) == "string", "expected string")
 	local e = setmetatable({ system = system }, { __index = _G })
-	local func, err = system.loadfile(".system/" .. name .. ".lua", e)
+	local filename = fs.combine(".system", name .. ".lua")
+	assert(fs.exists(filename), "module " .. name .. " not found")
+	assert(not fs.isDir(filename), "module " .. name .. " not found")
 
+	if system[name] then
+		return true, "module already loaded"
+	end
+
+	local func, err = system.loadfile(filename, e)
 	if func == nil then
 		return false, err
 	end
-	
-	func()
-	return true
+	ok, out = pcall(func)
+
+	if not ok then
+		return false, out
+	else
+		system[name] = out
+		return true
+	end
 end
 
 -- load core modules
@@ -80,7 +93,4 @@ do
 	end
 end
 
-_G.system = {}
-for k, v in pairs(system) do
-	_G.system[k] = v
-end
+_G.system = system

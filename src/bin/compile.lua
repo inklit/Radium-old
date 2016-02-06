@@ -1,3 +1,6 @@
+-- bin/compile.lua
+-- compiles a program, packaging any non-standard libraries to provide CraftOS compatibility
+
 local filename = ...
 if filename == nil then
 	return printError("Usage: " .. fs.getName(shell.getRunningProgram()) .. " <filename>")

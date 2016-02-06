@@ -1,6 +1,8 @@
 -- .system/paths.lua
 -- Creates and provides manipulation for library and binary paths
 
+local module = {}
+
 -- specifies paths to search for binaries in
 -- paths can direct to files or directories
 local PATH = "/bin:.:/rom/programs"
@@ -21,40 +23,40 @@ local LIB_EXT = "*.lua:*"
 
 -- create getter functions
 
-function system.path()
+function module.path()
 	return PATH
 end
 
-function system.libPath()
+function module.libPath()
 	return LIB_PATH
 end
 
-function system.pathExtensions()
+function module.pathExtensions()
 	return PATH_EXT
 end
 
-function system.libExtensions()
+function module.libExtensions()
 	return LIB_EXT
 end
 
 -- create setter functions
 
-function system.setPath(p)
+function module.setPath(p)
 	assert(type(p) == "string", "expected string")
 	PATH = p
 end
 
-function system.setLibPath(p)
+function module.setLibPath(p)
 	assert(type(p) == "string", "expected string")
 	LIB_PATH = p
 end
 
-function system.setPathExtensions(e)
+function module.setPathExtensions(e)
 	assert(type(e) == "string", "expected string")
 	PATH_EXT = e
 end
 
-function system.setLibExtensions(e)
+function module.setLibExtensions(e)
 	assert(type(e) == "string", "expected string")
 	LIB_EXT = e
 end
@@ -72,3 +74,5 @@ local function combine(base, path)
 end
 
 -- TODO
+
+return module

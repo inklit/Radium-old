@@ -1,4 +1,4 @@
 -- bin/besh.lua
--- BEtter SHell
+-- BEtter SHell - a replacement for the CraftOS shell
 
 -- TODO

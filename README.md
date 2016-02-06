@@ -2,4 +2,4 @@
 ## A ComputerCraft operating system.
 
 Here's a cool flowchart if you're into that sort of thing:
-![Beep!](http://i.imgur.com/XBe21sG.png)
+![Flowchart](http://i.imgur.com/DodFR3Q.png)
