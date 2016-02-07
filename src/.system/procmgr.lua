@@ -151,7 +151,7 @@ function module.loadLib(pid, lib)
 	end
 
 	name = system.paths.getNameNoExt(absPath)
-	local libTbl, err = system.loadfile(absPath, proc.env)
+	local libTbl, err = system.require(absPath, proc.env)
 
 	if libTbl == nil then
 		return false, err 
