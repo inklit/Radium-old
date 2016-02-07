@@ -62,7 +62,6 @@ function module.save(tbl, file)
 	end
 
 	-- write data
-	fs.delete(file)
 	local f = fs.open(file, "w")
 	for s, t in pairs(tbl) do
 		if type(t) == "table" then
