@@ -59,6 +59,12 @@ function module.setLibExtensions(e)
 	LIB_EXT = e
 end
 
+function module.getNameNoExt(path)
+	local name = fs.getName(path)
+	local noext = name:match("(.-)%.(.+)")
+	return noext
+end
+
 
 function module.resolve(paths, exts, name, workingDir)
 	assert(type(paths) == "string", "expected string, string, string, [string]")

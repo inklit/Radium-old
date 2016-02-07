@@ -136,6 +136,31 @@ local function checkProcessStatus(proc)
 	return true
 end
 
+-- loads a library into a process
+function module.loadLib(pid, lib)
+	local proc = getProcess(pid)
+	assert(type(lib) == "string", "arg #2 must be a library name")
+
+	local absPath, name
+
+	if lib:sub(1, 1) == "/" then -- absolute!
+		assert(fs.exists(lib), "file not found: " .. lib)
+		absPath = absPath
+	else
+		absPath = system.libs.resolve(lib, proc.cwd)
+	end
+
+	name = system.paths.getNameNoExt(absPath)
+	local libTbl, err = system.loadfile(absPath, proc.env)
+
+	if libTbl == nil then
+		return false, err 
+	end
+
+	proc.env[name] = libTbl
+	return true
+end
+
 -- resumes each process with the given event data
 function module.distribute(...)
 	local killQueue = {} -- dang that sounds brutal af
