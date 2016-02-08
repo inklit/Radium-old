@@ -48,6 +48,10 @@ function shell.resolve(file)
 	end
 end
 
+function shell.exit()
+	system.procmgr.kill(__PID__)
+end
+
 local shellHistory = {}
 
 -- resolve environment variables and whatnot

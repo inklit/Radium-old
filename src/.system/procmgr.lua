@@ -37,11 +37,14 @@ end
 -- makes a new process and returns its pid
 function module.new(file, env, ...)
 	env = env or setmetatable({}, {__index = _G})
+
 	if not fs.exists(file) then
 		return error("procmgr.new: no such file")
 	end
 
 	local pid = makePID()
+	env.__PID__ = pid -- allow processes to access their own pid
+
 	local ptable = {
 		path = file;
 		env = env;
