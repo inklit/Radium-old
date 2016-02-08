@@ -15,7 +15,9 @@ do
 
 		run = function(cmd, ...)
 			local resolvedCmd = shell.resolveProgram(cmd) or cmd
-			local pid, err = system.procmgr.new(resolvedCmd, ...)
+			assert(fs.exists(resolvedCmd), "file not found: " .. resolvedCmd)
+			local env = setmetatable({}, {__index = _G})
+			local pid, err = system.procmgr.new(resolvedCmd, env, ...)
 			
 			if pid == nil and err ~= nil then
 				error(err, 0)
