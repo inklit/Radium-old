@@ -15,6 +15,7 @@ end
 
 function shell.run(cmd, ...)
 	local resolvedCmd = shell.resolveProgram(cmd) or cmd
+	assert(fs.exists(resolvedCmd), "file not found: " .. resolvedCmd)
 
 	local env = setmetatable({ shell = shell }, { __index = _G })
 	local pid, err = system.procmgr.new(resolvedCmd, env, ...)
