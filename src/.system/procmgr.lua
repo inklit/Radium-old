@@ -131,12 +131,14 @@ end
 
 function module.kill(pid)
 	-- TODO: Inform the process of its murder
-	processes[pid] = nil
+	local proc = getProcess(pid)
+	proc.status = module.pstatus.dead
 	os.queueEvent("process_dead", pid)
 end
 
 local function checkProcessStatus(proc)
-	if coroutine.status(proc.coroutine) == "dead" then
+	if 	coroutine.status(proc.coroutine) == "dead" or 
+		module.checkStatus(proc.pid, module.pstatus.dead) then
 		-- sorry for your loss
 		proc.status = module.pstatus.done
 		return false
@@ -204,8 +206,13 @@ function module.distribute(...)
 
 	-- carry on with the execution
 	for _,v in pairs(killQueue) do
-		module.kill(v)
+		if module.has(v) then
+			module.kill(v)
+			processes[v] = nil
+		end
 	end
+
+	killQueue = {}
 end
 
 -- blocks execution until the specified process is dead
