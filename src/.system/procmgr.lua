@@ -63,7 +63,7 @@ function module.new(file, env, ...)
 
 	local func, err = system.loadfile(file, env)
 	if func == nil then
-		printError(err)
+		error(err, 0)
 	end
 
 	ptable.coroutine = coroutine.create(func)
