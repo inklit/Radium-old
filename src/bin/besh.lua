@@ -1,50 +1,50 @@
 -- bin/besh.lua
 -- BEtter SHell - a replacement for the CraftOS shell
 
-do
-	local currentDir = ""
+local currentDir = ""
 
-	_G.shell = {
-		dir = function()
-			return currentDir
-		end,
+local shell = {}
 
-		setDir = function(dir)
-			currentDir = dir
-		end,
+function shell.dir()
+	return currentDir
+end
 
-		run = function(cmd, ...)
-			local resolvedCmd = shell.resolveProgram(cmd) or cmd
-			local pid, err = system.procmgr.new(resolvedCmd, ...)
-			
-			if pid == nil and err ~= nil then
-				error(err, 0)
-				return false
-			end
+function shell.setDir(dir)
+	currentDir = dir
+end
 
-			return true, pid
-		end,
+function shell.run(cmd, ...)
+	local resolvedCmd = shell.resolveProgram(cmd) or cmd
 
-		resolveProgram = function(program)
-			local aliasResolved = system.aliases.resolve(program)
-			return system.paths.resolve(
-				system.paths.path(),
-				system.paths.pathExtensions(),
-				aliasResolved,
-				currentDir
-			)
-		end,
+	local env = setmetatable({ shell = shell }, { __index = _G })
+	local pid, err = system.procmgr.new(resolvedCmd, env, ...)
+	
+	if pid == nil and err ~= nil then
+		error(err, 0)
+		return false
+	end
 
-		resolve = function(file)
-			local firstChar = file:sub(1, 1)
+	return true, pid
+end
 
-			if firstChar == "/" or firstChar == "\\" then
-				return fs.combine("", file)
-			else
-				return fs.combine(currentDir, file)
-			end
-		end
-	}
+function shell.resolveProgram(program)
+	local aliasResolved = system.aliases.resolve(program)
+	return system.paths.resolve(
+		system.paths.path(),
+		system.paths.pathExtensions(),
+		aliasResolved,
+		currentDir
+	)
+end
+
+function shell.resolve(file)
+	local firstChar = file:sub(1, 1)
+
+	if firstChar == "/" or firstChar == "\\" then
+		return fs.combine("", file)
+	else
+		return fs.combine(currentDir, file)
+	end
 end
 
 local shellHistory = {}
@@ -72,9 +72,21 @@ local function processCommand(cmd)
 	end
 end
 
+local function formatCurrentDir(dir)
+	if dir:sub(1, 1) ~= "/" then
+		dir = "/" .. dir
+	end
+
+	if dir:sub(#dir, #dir) == "/" then
+		dir = dir:sub(1, #dir - 1)
+	end
+
+	return dir
+end
+
 do
 	while true do
-		write("$ ")
+		write(formatCurrentDir(currentDir) .. "$ ")
 
 		local input = read(nil, shellHistory)
 		shellHistory[#shellHistory + 1] = input
