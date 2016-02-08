@@ -2,6 +2,7 @@
 -- BEtter SHell - a replacement for the CraftOS shell
 
 local currentDir = ""
+local programStack = {}
 
 local shell = {}
 
@@ -19,6 +20,8 @@ function shell.run(cmd, ...)
 
 	local env = setmetatable({ shell = shell }, { __index = _G })
 	local pid, err = system.procmgr.new(resolvedCmd, env, ...)
+
+	programStack[#programStack + 1] = resolvedCmd
 	
 	if pid == nil and err ~= nil then
 		error(err, 0)
@@ -100,6 +103,10 @@ function shell.programs(includeHidden)
 	end
 
 	return programs
+end
+
+function shell.getRunningProgram()
+	return programStack[#programStack]
 end
 
 local shellHistory = {}
