@@ -19,6 +19,7 @@ module.pstatus = {
 	-- virtual statuses
 	stopped 	= 12; 	-- the process is done or dead
 	still		= 44;	-- the process is done, dead or ready
+	alive		= 19
 }
 
 local function makePID()
@@ -222,12 +223,14 @@ function module.waitForExit(pid)
 	until not module.has(pid)
 end
 
-function module.countAliveProcesses()
+function module.isAlive(pid)
+	return module.checkStatus(pid, module.pstatus.running) or module.checkStatus(pid, module.pstatus.suspended) or module.checkStatus(pid, module.pstatus.ready)
+end
+
+function module.countAlive()
 	local count = 0
 	for _, proc in pairs(processes) do
-		if (module.checkStatus(proc.pid, module.pstatus.running) or
-				module.checkStatus(proc.pid, module.pstatus.suspended) or
-				module.checkStatus(proc.pid, module.pstatus.ready)) then
+		if module.isAlive(proc.pid) then
 			count = count + 1
 		end
 	end
