@@ -4,7 +4,7 @@
 local module = {}
 
 -- specifies paths to search for binaries in
-local PATH = "/bin:.:/rom/programs"
+local PATH = "/bin:.:/rom/programs:/rom/programs/fun"
 
 -- specifies paths to search for libraries in
 local LIB_PATH = "/lib:."

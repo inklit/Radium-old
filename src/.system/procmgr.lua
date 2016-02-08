@@ -94,6 +94,11 @@ function module.checkStatus(pid, _status)
 	return _bit.band(status, _status) == _status
 end
 
+-- checks if a pid is real
+function module.has(pid)
+	return processes[pid] ~= nil
+end
+
 -- returns the current working directory of a pid
 function module.getCWD(pid)
 	local proc = getProcess(pid)
@@ -124,6 +129,7 @@ end
 function module.kill(pid)
 	-- TODO: Inform the process of its murder
 	processes[pid] = nil
+	os.queueEvent("process_dead", pid)
 end
 
 local function checkProcessStatus(proc)
@@ -197,6 +203,13 @@ function module.distribute(...)
 	for _,v in pairs(killQueue) do
 		module.kill(v)
 	end
+end
+
+-- blocks execution until the specified process is dead
+function module.waitForExit(pid)
+	repeat
+		os.pullEvent("process_dead")
+	until not module.has(pid)
 end
 
 return module

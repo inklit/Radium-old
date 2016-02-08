@@ -138,7 +138,7 @@ _G.system = system
 -- run shell
 -- TODO: we should probably move this out of the kernel code
 do
-	local shellPID = system.procmgr.new("rom/programs/shell")
+	system.procmgr.new("/bin/besh.lua")
 end
 
 -- The OS main loop
