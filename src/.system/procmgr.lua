@@ -38,7 +38,7 @@ end
 function module.new(file, env, ...)
 	env = env or setmetatable({}, {__index = _G})
 	if not fs.exists(file) then
-		return error("procNew: no such file")
+		return error("procmgr.new: no such file")
 	end
 
 	local pid = makePID()
@@ -108,7 +108,7 @@ end
 -- changes the current working directory of a pid
 function module.setCWD(pid, dir)
 	if not fs.isDir(dir) then
-		return error("procSetCWD: no such directory")
+		return error("procmgr.setCWD: no such directory")
 	end
 
 	local proc = getProcess(pid)

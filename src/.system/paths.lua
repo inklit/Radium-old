@@ -4,7 +4,37 @@
 local module = {}
 
 -- specifies paths to search for binaries in
-local PATH = "/bin:.:/rom/programs:/rom/programs/fun"
+local PATH = "/bin:.:/rom/programs"
+
+do
+	if term.isColour() then
+		PATH = PATH .. ":/rom/programs/advanced"
+	end
+
+	if turtle then
+		PATH = PATH .. ":/rom/programs/turtle"
+	else
+		PATH = PATH .. ":/rom/programs/rednet:/rom/programs/fun"
+
+		if term.isColour() then
+			PATH = PATH .. ":/rom/programs/fun/advanced"
+		end
+	end
+
+	if pocket then
+		PATH = PATH .. ":/rom/programs/pocket"
+	end
+
+	if commands then
+		PATH = PATH .. ":/rom/programs/command"
+	end
+
+	if http then
+		PATH = PATH .. ":/rom/programs/http"
+	end
+
+	-- ew
+end
 
 -- specifies paths to search for libraries in
 local LIB_PATH = "/lib:."
