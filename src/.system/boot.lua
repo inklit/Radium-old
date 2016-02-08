@@ -147,5 +147,10 @@ do
 		-- distributes any incoming events across all processes
 		local evt = { os.pullEventRaw() }
 		system.procmgr.distribute(table.unpack(evt))
+		if system.procmgr.countAliveProcesses() == 0 then
+			print("Goodbye")
+			sleep(1)
+			os.shutdown()
+		end
 	end
 end

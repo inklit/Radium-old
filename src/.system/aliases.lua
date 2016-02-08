@@ -38,8 +38,7 @@ do
 	end
 
 	if fs.exists("/etc/aliases.conf") then
-		local ini = system.libs.load(system.libs.resolve("ini"))
-		local data = ini.load("/etc/aliases.conf")
+		local data = system.ini.load("/etc/aliases.conf")
 
 		addAliases(data.All)
 

@@ -63,7 +63,7 @@ function module.new(file, env, ...)
 
 	local func, err = system.loadfile(file, env)
 	if func == nil then
-		printError(err)
+		error(err, 0)
 	end
 
 	ptable.coroutine = coroutine.create(func)
@@ -220,6 +220,18 @@ function module.waitForExit(pid)
 	repeat
 		os.pullEvent("process_dead")
 	until not module.has(pid)
+end
+
+function module.countAliveProcesses()
+	local count = 0
+	for _, proc in pairs(processes) do
+		if (module.checkStatus(proc.pid, module.pstatus.running) or
+				module.checkStatus(proc.pid, module.pstatus.suspended) or
+				module.checkStatus(proc.pid, module.pstatus.ready)) then
+			count = count + 1
+		end
+	end
+	return count
 end
 
 return module
