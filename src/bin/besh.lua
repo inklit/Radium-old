@@ -52,6 +52,26 @@ function shell.exit()
 	system.procmgr.kill(__PID__)
 end
 
+function shell.path()
+	return system.paths.path()
+end
+
+function shell.setPath(path)
+	return system.paths.setPath(path)
+end
+
+function shell.aliases()
+	return system.aliases.list()
+end
+
+function shell.setAlias(alias, path)
+	return system.aliases.set(alias, path)
+end
+
+function shell.clearAlias(alias)
+	return system.aliases.set(alias, nil)
+end
+
 local shellHistory = {}
 
 -- resolve environment variables and whatnot

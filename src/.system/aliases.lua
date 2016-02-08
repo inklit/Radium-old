@@ -14,6 +14,17 @@ function module.resolve(alias)
 	return aliases[alias] or alias
 end
 
+-- returns a read-only table of aliases
+function module.list()
+	local copy = {}
+	
+	for k,v in pairs(aliases) do
+		copy[k] = v
+	end
+
+	return copy
+end
+
 -- load default aliases
 do
 	local function addAliases(tbl)
