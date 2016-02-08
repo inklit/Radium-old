@@ -116,7 +116,7 @@ end
 
 -- load core modules
 do
-	local f = fs.open("/etc/modules.cfg",  "r")
+	local f = fs.open("/etc/modules.conf",  "r")
 
 	while true do
 		local line = f.readLine()

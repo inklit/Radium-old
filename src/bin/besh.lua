@@ -14,7 +14,7 @@ do
 		end,
 
 		run = function(cmd, ...)
-			local resolvedCmd = shell.resolve(cmd) or cmd
+			local resolvedCmd = shell.resolveProgram(cmd) or cmd
 			local pid, err = system.procmgr.new(resolvedCmd, ...)
 			
 			if pid == nil and err ~= nil then
@@ -25,13 +25,24 @@ do
 			return true, pid
 		end,
 
-		resolve = function(file)
+		resolveProgram = function(program)
+			local aliasResolved = system.aliases.resolve(program)
 			return system.paths.resolve(
 				system.paths.path(),
 				system.paths.pathExtensions(),
-				file,
+				aliasResolved,
 				currentDir
 			)
+		end,
+
+		resolve = function(file)
+			local firstChar = file:sub(1, 1)
+
+			if firstChar == "/" or firstChar == "\\" then
+				return fs.combine("", file)
+			else
+				return fs.combine(currentDir, file)
+			end
 		end
 	}
 end
