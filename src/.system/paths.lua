@@ -95,7 +95,6 @@ function module.getNameNoExt(path)
 	return noext
 end
 
-
 function module.resolve(paths, exts, name, workingDir)
 	assert(type(paths) == "string", "expected string, string, string, [string]")
 	assert(type(exts) == "string", "expected string, string, string, [string]")

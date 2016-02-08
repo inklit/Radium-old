@@ -72,6 +72,36 @@ function shell.clearAlias(alias)
 	return system.aliases.set(alias, nil)
 end
 
+function shell.programs(includeHidden)
+	local programs = {}
+
+	for pathElem in shell.path():gmatch("[^%:]+") do
+		local absPath = shell.resolve(pathElem)
+		if fs.isDir(absPath) then
+			for _,file in pairs(fs.list(absPath)) do
+				if not fs.isDir(file) then
+					local exts = system.paths.pathExtensions()
+
+					for ext in exts:gmatch("([^:]+)") do
+						ext = ext:gsub("%*", "(.+)")
+						if file:match(ext) then
+							if includeHidden then
+								if file:sub(1, 1) == "." then
+									programs[#programs + 1] = file
+								end
+							else
+								programs[#programs + 1] = file
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+
+	return programs
+end
+
 local shellHistory = {}
 
 -- resolve environment variables and whatnot
