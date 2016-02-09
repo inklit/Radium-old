@@ -28,7 +28,9 @@ function shell.run(cmd, ...)
 		return false
 	end
 
-	return true, pid
+	system.procmgr.waitForExit(pid)
+
+	return true
 end
 
 function shell.resolveProgram(program)
@@ -125,8 +127,7 @@ local function processCommand(cmd)
 	end
 
 	local ok, err = pcall(function()
-		local _, pid = shell.run(table.unpack(elems))
-		system.procmgr.waitForExit(pid)
+		shell.run(table.unpack(elems))
 		programStack[#programStack] = nil
 	end)
 end

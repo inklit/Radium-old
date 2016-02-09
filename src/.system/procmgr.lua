@@ -20,7 +20,6 @@ module.pstatus = {
 	-- virtual statuses
 	stopped 	= 12; 	-- the process is done or dead
 	still		= 44;	-- the process is done, dead or ready
-	alive		= 19
 }
 
 local function makePID()
@@ -45,6 +44,9 @@ function module.new(file, env, ...)
 	end
 
 	local pid = makePID()
+
+	env.__PID__ = pid
+
 	local ptable = {
 		pid = pid;
 		path = file;
