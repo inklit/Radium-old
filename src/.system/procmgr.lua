@@ -4,6 +4,7 @@
 local module = {}
 
 local processes = {}
+local newTaskQueue = {}
 
 local nextPID = -1
 local _bit = bit32 or bit
@@ -44,12 +45,10 @@ function module.new(file, env, ...)
 	end
 
 	local pid = makePID()
-	env.__PID__ = pid -- allow processes to access their own pid
-
 	local ptable = {
+		pid = pid;
 		path = file;
 		env = env;
-		pid = pid;
 		cwd = fs.getDir(file);
 		status = module.pstatus.ready;
 	}
@@ -87,7 +86,7 @@ function module.new(file, env, ...)
 		ptable.eventFilters = evtFilters
 	end
 
-	processes[pid] = ptable
+	newTaskQueue[#newTaskQueue + 1] = ptable
 	return pid
 end
 
@@ -183,6 +182,12 @@ end
 
 -- resumes each process with the given event data
 function module.distribute(...)
+	for _,v in pairs(newTaskQueue) do
+		processes[v.pid] = v
+	end
+
+	newTaskQueue = {}
+
 	local killQueue = {} -- dang that sounds brutal af
 
 	for _,v in pairs(processes) do
