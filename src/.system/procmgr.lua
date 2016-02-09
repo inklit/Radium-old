@@ -124,6 +124,14 @@ function module.getPath(pid)
 	return proc.path
 end
 
+-- gets the status code of a process
+-- if you want to check a processes' status,
+-- try using checkStatus
+function module.getStatus(pid)
+	local proc = getProcess(pid)
+	return proc.status
+end
+
 -- returns the command line a process was started with
 function module.getCmdLine(pid)
 	local proc = getProcess(pid)
@@ -225,6 +233,17 @@ end
 
 function module.isAlive(pid)
 	return module.checkStatus(pid, module.pstatus.running) or module.checkStatus(pid, module.pstatus.suspended) or module.checkStatus(pid, module.pstatus.ready)
+end
+
+-- returns a list of pids
+function module.list()
+	local pids = {}
+
+	for k,_ in pairs(processes) do
+		pids[#pids + 1] = k
+	end
+
+	return pids
 end
 
 function module.countAlive()

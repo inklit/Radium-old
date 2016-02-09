@@ -129,27 +129,11 @@ local function processCommand(cmd)
 		system.procmgr.waitForExit(pid)
 		programStack[#programStack] = nil
 	end)
-
-	if not ok then
-		printError(err)
-	end
-end
-
-local function formatCurrentDir(dir)
-	if dir:sub(1, 1) ~= "/" then
-		dir = "/" .. dir
-	end
-
-	if dir:sub(#dir, #dir) == "/" then
-		dir = dir:sub(1, #dir - 1)
-	end
-
-	return dir
 end
 
 do
 	while true do
-		write(formatCurrentDir(currentDir) .. "$ ")
+		write(system.paths.normalise(currentDir, true) .. "$ ")
 
 		local input = read(nil, shellHistory)
 		shellHistory[#shellHistory + 1] = input

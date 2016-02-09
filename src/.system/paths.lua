@@ -67,6 +67,26 @@ function module.libExtensions()
 	return LIB_EXT
 end
 
+function module.normalise(p, isAbs)
+	p = p:gsub("\\", "/")
+
+	if p:sub(1, 1) ~= "/" or p:match("^%s-$") ~= nil then
+		if isAbs then
+			p = "/" .. p
+		else
+			p = "./" .. p
+		end
+	end
+
+	if p:sub(#p, #p) == "/" and p:match("^%.?%/$") == nil then
+		p = p:sub(1, #p - 1)
+	end
+
+	return p
+end
+
+module.normalize = module.normalise
+
 -- create setter functions
 
 function module.setPath(p)
