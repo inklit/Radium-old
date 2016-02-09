@@ -18,10 +18,10 @@ function shell.run(cmd, ...)
 	local resolvedCmd = shell.resolveProgram(cmd) or cmd
 	assert(fs.exists(resolvedCmd), "file not found: " .. resolvedCmd)
 
+	programStack[#programStack + 1] = resolvedCmd
+
 	local env = setmetatable({ shell = shell }, { __index = _G })
 	local pid, err = system.procmgr.new(resolvedCmd, env, ...)
-
-	programStack[#programStack + 1] = resolvedCmd
 	
 	if pid == nil and err ~= nil then
 		error(err, 0)
@@ -127,6 +127,7 @@ local function processCommand(cmd)
 	local ok, err = pcall(function()
 		local _, pid = shell.run(table.unpack(elems))
 		system.procmgr.waitForExit(pid)
+		programStack[#programStack] = nil
 	end)
 
 	if not ok then
