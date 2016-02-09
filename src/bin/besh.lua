@@ -16,7 +16,9 @@ end
 
 function shell.run(cmd, ...)
 	local resolvedCmd = shell.resolveProgram(cmd) or cmd
-	assert(fs.exists(resolvedCmd), "file not found: " .. resolvedCmd)
+	if not fs.exists(resolvedCmd) then
+		return false, "file not found: " .. resolvedCmd
+	end
 
 	programStack[#programStack + 1] = resolvedCmd
 
@@ -127,7 +129,10 @@ local function processCommand(cmd)
 	end
 
 	local ok, err = pcall(function()
-		shell.run(table.unpack(elems))
+		local success, err = shell.run(table.unpack(elems))
+		if err and not success then
+			printError(err)
+		end
 		programStack[#programStack] = nil
 	end)
 end
