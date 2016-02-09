@@ -90,6 +90,25 @@ function module.new(file, env, ...)
 	return pid
 end
 
+-- checks if a certain process has passed a certain event
+-- into os.pullEvent
+function module.hasRequestedEvent(pid, event)
+	local proc = getProcess(pid)
+	
+	-- nil means no filter
+	if proc.eventFilters == nil then
+		return true
+	end
+
+	for _,v in pairs(proc.eventFilters) do
+		if v == event then
+			return true
+		end
+	end
+
+	return false
+end
+
 -- checks if a certain status (system.pstatus) applies to the given pid
 function module.checkStatus(pid, _status)
 	local proc = getProcess(pid)
@@ -182,6 +201,8 @@ end
 
 -- resumes each process with the given event data
 function module.distribute(...)
+	local evtName = ...
+
 	for _,v in pairs(newTaskQueue) do
 		processes[v.pid] = v
 	end
@@ -193,18 +214,20 @@ function module.distribute(...)
 	for _,v in pairs(processes) do
 		-- don't resume if the coroutine has died
 		if checkProcessStatus(v) then
-			local resumeData = { coroutine.resume(v.coroutine, ...) }
-			local ok = resumeData[1]
+			if module.hasRequestedEvent(v.pid, evtName) then
+				local resumeData = { coroutine.resume(v.coroutine, ...) }
+				local ok = resumeData[1]
 
-			if not ok then
-				printError(resumeData[2])
-			else
-				local eventFilters = { select(2, table.unpack(resumeData)) }
-
-				if #eventFilters == 0 then
-					v.eventFilters = nil
+				if not ok then
+					printError(resumeData[2])
 				else
-					v.eventFilters = eventFilters
+					local eventFilters = { select(2, table.unpack(resumeData)) }
+
+					if #eventFilters == 0 then
+						v.eventFilters = nil
+					else
+						v.eventFilters = eventFilters
+					end
 				end
 			end
 		else
