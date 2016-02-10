@@ -63,6 +63,10 @@ function shell.path()
 	return system.paths.path()
 end
 
+function shell.pathExtensions()
+	return system.paths.pathExtensions()
+end
+
 function shell.setPath(path)
 	return system.paths.setPath(path)
 end
@@ -92,28 +96,20 @@ function shell.programs(includeHidden)
 		return false
 	end
 
-	for pathElem in shell.path():gmatch("[^%:]+") do
-		local absPath = shell.resolve(pathElem)
-		if fs.isDir(absPath) then
-			for _,file in pairs(fs.list(absPath)) do
-				if not fs.isDir(file) then
-					local exts = system.paths.pathExtensions()
-
-					for ext in exts:gmatch("([^:]+)") do
-						ext = ext:gsub("%*", "(.+)")
-						if file:match(ext) then
-							if includeHidden then
-								if file:sub(1, 1) == "." then
-									if not hasProgram(file) then
-										programs[#programs + 1] = file
-									end
-								end
-							else
-								if not hasProgram(file) then
-									programs[#programs + 1] = file
-								end
-							end
+	for path in shell.path():gmatch("([^:]+)") do
+		local absPath = shell.resolve(path)
+		local files = fs.list(absPath)
+		for _, f in ipairs(files) do
+			local fPath = fs.combine(absPath, f)
+			if not fs.isDir(fPath) then
+				for ext in shell.pathExtensions():gmatch("([^:]+)") do
+					local ext = ext:gsub("%.", "%%."):gsub("%*", "(.+)")
+					if f:match(ext) then
+						local n = f:match(ext)
+						if not hasProgram(n) then
+							table.insert(programs, n)
 						end
+						break
 					end
 				end
 			end
