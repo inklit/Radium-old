@@ -76,7 +76,12 @@ function module.move(from, to)
 		module.copy(from, to)
 		return module.deleteFile(from)
 	else
-		return pfrom.move(from, to)
+		if pfrom.move then
+			return pfrom.move(from, to)
+		else
+			module.copy(from, to)
+			return module.deleteFile(from)
+		end
 	end
 end
 
