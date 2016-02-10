@@ -11,10 +11,14 @@ if not _TLCO then
 		_G.printError = _pe
 		local ok, err = pcall(assert(loadfile(bootFile)))
 		if not ok then
-			pcall(function()
+			local ok, err2 = pcall(function()
 				local recovery = loadfile(recoveryFile)
 				recovery(err)
 			end)
+			if not ok then
+				printError("Fatal error; recovery unavailable. Shutting down in 5 seconds!")
+				sleep(5)
+			end
 			os.shutdown()
 		end
 	end
