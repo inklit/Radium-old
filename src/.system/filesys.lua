@@ -5,6 +5,14 @@ local fileProvidersConfigFile = "/etc/filesystem.conf"
 
 local fs = _G.fs
 
+-- the providers need access to the original fs api,
+-- which gets overriden by fswrapper
+local ccfs = {}
+
+for k,v in pairs(_G.fs) do
+	ccfs[k] = v
+end
+
 local module = {}
 local providers = {}
 local routes = {}
@@ -25,10 +33,17 @@ end
 
 -- set up the fs call routers
 do
+	local notImplemented = function()
+		return error("function not implemented")
+	end
+
 	local providerFuncs = {
-		"openFile";
-		"deleteFile";
-		"exists";
+		openFile = notImplemented;
+		deleteFile = notImplemented;
+		exists = notImplemented;
+		isDirectory = notImplemented;
+		getFiles = notImplemented;
+		makeDir = notImplemented;
 	}
 
 	local function routePath(path)
@@ -45,10 +60,10 @@ do
 		return module.getProvider(defaultProvider)
 	end
 
-	for _,v in pairs(providerFuncs) do
-		module[v] = function(path, ...)
+	for k,v in pairs(providerFuncs) do
+		module[k] = function(path, ...)
 			local provider = routePath(path)
-			local func = provider[v]
+			local func = provider[k] or v
 			return func(path, ...)
 		end
 	end
@@ -62,15 +77,7 @@ do
 		if data.Providers then
 			for k,v in pairs(data.Providers) do
 				local path = system.libs.resolve(v) or v
-				local env = setmetatable({
-					ccfs = setmetatable({}, {
-						-- prevents file providers from passing
-						-- around the original fs api
-						__index = function(tbl, key)
-							return rawget(fs, key)
-						end
-					})
-				}, { __index = _G })
+				local env = setmetatable({ fs = ccfs }, { __index = _G })
 
 				local provider, err = system.require(path, env)
 				if not provider then
