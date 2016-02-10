@@ -60,7 +60,11 @@ function system.require(path, env)
 	assert(not fs.isDir(path), "cannot load directory")
 
 	local env = env or setmetatable({}, {__index = _G})
-	local f = system.loadfile(path, env)
+	local f, err = system.loadfile(path, env)
+	if f == nil then
+		return false, err
+	end
+
 	local ok, out = pcall(f)
 	if not ok then
 		return false, out
