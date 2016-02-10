@@ -33,34 +33,38 @@ end
 
 local function routePath(path)
 	local npath = system.paths.normalise(path, true)
-	
+
 	for route,provider in pairs(routes) do
 		route = route:gsub("%*", "%.%-")
 
-		if npath:match(route) then
-			return module.getProvider(provider)
+		local begin, stop = npath:find(route)
+
+		if begin then
+			local root = npath:sub(begin, stop)
+			local file = npath:sub(stop + 1, #npath)
+			return module.getProvider(provider), system.paths.normalise(root, true), system.paths.normalise(file, true)
 		end
 	end
 
-	return module.getProvider(defaultProvider)
+	return module.getProvider(defaultProvider), "/", path
 end
 
 function module.copy(from, to)
-	local pfrom = routePath(from)
-	local pto = routePath(to)
+	local pfrom, rfrom = routePath(from)
+	local pto, rto = routePath(to)
 
 	if pfrom.id == pto.id then
 		if pfrom.copy then
 			-- if there is a copy function, use it
 			-- it's probably faster than manual copy
-			return pfrom.copy(from, to)
+			return pfrom.copy(rfrom, from, to)
 		end
 	end
 
 	-- fallback in case there is no copy function
 	-- or the path providers differ
-	local ffrom = pfrom.openFile(from, "r")
-	local fto = pto.openFile(to, "w")
+	local ffrom = pfrom.openFile(rfrom, from, "r")
+	local fto = pto.openFile(rto, to, "w")
 
 	fto.write(ffrom.readAll())
 
@@ -69,7 +73,7 @@ function module.copy(from, to)
 end
 
 function module.move(from, to)
-	local pfrom = routePath(from)
+	local pfrom, rfrom = routePath(from)
 	local pto = routePath(to)
 
 	if pfrom.id ~= pto.id then
@@ -77,7 +81,7 @@ function module.move(from, to)
 		return module.deleteFile(from)
 	else
 		if pfrom.move then
-			return pfrom.move(from, to)
+			return pfrom.move(rfrom, from, to)
 		else
 			module.copy(from, to)
 			return module.deleteFile(from)
@@ -102,9 +106,9 @@ do
 
 	for k,v in pairs(providerFuncs) do
 		module[k] = function(path, ...)
-			local provider = routePath(path)
+			local provider, root, file = routePath(path)
 			local func = provider[k] or v
-			return func(path, ...)
+			return func(root, file, ...)
 		end
 	end
 end

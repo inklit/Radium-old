@@ -29,4 +29,8 @@ function fs.copy(from, to)
 	return system.filesys.copy(from, to)
 end
 
+function fs.open(file, mode)
+	return system.filesys.openFile(file, mode)
+end
+
 return fs
