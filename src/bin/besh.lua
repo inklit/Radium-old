@@ -148,13 +148,18 @@ local function processCommand(cmd)
 end
 
 do
-	while true do
-		write(system.paths.normalise(currentDir, true) .. "$ ")
+	local args = {...}
+	if #args > 0 then
+		shell.run(unpack(args))
+	else
+		while true do
+			write(system.paths.normalise(currentDir, true) .. "$ ")
 
-		local input = read(nil, shellHistory)
-		shellHistory[#shellHistory + 1] = input
+			local input = read(nil, shellHistory)
+			shellHistory[#shellHistory + 1] = input
 
-		local preprocessed = preprocessCommand(input)
-		processCommand(preprocessed)
+			local preprocessed = preprocessCommand(input)
+			processCommand(preprocessed)
+		end
 	end
 end
