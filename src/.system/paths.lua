@@ -132,7 +132,10 @@ function module.resolve(paths, exts, name, workingDir)
 					ext = ext:gsub("%*", "(.+)")
 					if file:match(ext) then
 						if file:gsub(ext, "%1") == name then
-							return fs.combine(base, file)
+							local r = fs.combine(base, file)
+							if fs.exists(r) and not fs.isDir(r) then
+								return r
+							end
 						end
 					end
 				end
