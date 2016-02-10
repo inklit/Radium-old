@@ -31,6 +31,33 @@ function module.route(path, provider)
 	routes[system.paths.normalise(path)] = provider
 end
 
+local function routePath(path)
+	local npath = system.paths.normalise(path, true)
+	
+	for route,provider in pairs(routes) do
+		route = route:gsub("%*", "%.%-")
+
+		if npath:match(route) then
+			return module.getProvider(provider)
+		end
+	end
+
+	return module.getProvider(defaultProvider)
+end
+
+function module.move(from, to)
+	local pfrom = routePath(from)
+	local pto = routePath(to)
+
+	if pfrom.id ~= pto.id then
+		-- TODO:
+		-- move can't take place between providers
+		-- perform a copy with deletion instead
+	else
+		return pfrom.move(from, to)
+	end
+end
+
 -- set up the fs call routers
 do
 	local notImplemented = function()
@@ -45,20 +72,6 @@ do
 		getFiles = notImplemented;
 		makeDir = notImplemented;
 	}
-
-	local function routePath(path)
-		local npath = system.paths.normalise(path, true)
-		
-		for route,provider in pairs(routes) do
-			route = route:gsub("%*", "%.%-")
-
-			if npath:match(route) then
-				return module.getProvider(provider)
-			end
-		end
-
-		return module.getProvider(defaultProvider)
-	end
 
 	for k,v in pairs(providerFuncs) do
 		module[k] = function(path, ...)
@@ -83,6 +96,7 @@ do
 				if not provider then
 					printError(err)
 				else
+					provider.id = k
 					providers[k] = provider
 				end
 			end

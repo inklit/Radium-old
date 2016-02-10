@@ -27,4 +27,8 @@ function provider.makeDir(path)
 	return fs.makeDir(path)
 end
 
+function provider.move(from, to)
+	return fs.move(from, to)
+end
+
 return provider

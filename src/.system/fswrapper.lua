@@ -21,4 +21,8 @@ function fs.delete(path)
 	return system.filesys.deleteFile(path)
 end
 
+function fs.move(from, to)
+	return system.filesys.move(from, to)
+end
+
 return fs
