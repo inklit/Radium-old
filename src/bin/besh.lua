@@ -82,6 +82,16 @@ end
 function shell.programs(includeHidden)
 	local programs = {}
 
+	local function hasProgram(prog)
+		for _,v in pairs(programs) do
+			if v == prog then
+				return true
+			end
+		end
+
+		return false
+	end
+
 	for pathElem in shell.path():gmatch("[^%:]+") do
 		local absPath = shell.resolve(pathElem)
 		if fs.isDir(absPath) then
@@ -94,10 +104,14 @@ function shell.programs(includeHidden)
 						if file:match(ext) then
 							if includeHidden then
 								if file:sub(1, 1) == "." then
-									programs[#programs + 1] = file
+									if not hasProgram(file) then
+										programs[#programs + 1] = file
+									end
 								end
 							else
-								programs[#programs + 1] = file
+								if not hasProgram(file) then
+									programs[#programs + 1] = file
+								end
 							end
 						end
 					end
