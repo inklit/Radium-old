@@ -31,4 +31,8 @@ function provider.move(from, to)
 	return fs.move(from, to)
 end
 
+function provider.copy(from, to)
+	return fs.copy(from, to)
+end
+
 return provider

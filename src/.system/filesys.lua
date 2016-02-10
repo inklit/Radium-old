@@ -45,14 +45,36 @@ local function routePath(path)
 	return module.getProvider(defaultProvider)
 end
 
+function module.copy(from, to)
+	local pfrom = routePath(from)
+	local pto = routePath(to)
+
+	if pfrom.id == pto.id then
+		if pfrom.copy then
+			-- if there is a copy function, use it
+			-- it's probably faster than manual copy
+			return pfrom.copy(from, to)
+		end
+	end
+
+	-- fallback in case there is no copy function
+	-- or the path providers differ
+	local ffrom = pfrom.openFile(from, "r")
+	local fto = pto.openFile(to, "w")
+
+	fto.write(ffrom.readAll())
+
+	ffrom.close()
+	fto.close()
+end
+
 function module.move(from, to)
 	local pfrom = routePath(from)
 	local pto = routePath(to)
 
 	if pfrom.id ~= pto.id then
-		-- TODO:
-		-- move can't take place between providers
-		-- perform a copy with deletion instead
+		module.copy(from, to)
+		return module.deleteFile(from)
 	else
 		return pfrom.move(from, to)
 	end

@@ -25,4 +25,8 @@ function fs.move(from, to)
 	return system.filesys.move(from, to)
 end
 
+function fs.copy(from, to)
+	return system.filesys.copy(from, to)
+end
+
 return fs
