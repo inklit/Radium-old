@@ -129,10 +129,13 @@ function module.resolve(paths, exts, name, workingDir)
 			local files = fs.list(base)
 			for i, file in ipairs(files) do
 				for ext in exts:gmatch("([^:]+)") do
-					ext = ext:gsub("%*", "(.+)")
+					ext = ext:gsub("%.", "%%."):gsub("%*", "(.+)")
 					if file:match(ext) then
-						if file:gsub(ext, "%1") == name then
-							return fs.combine(base, file)
+						if file:match(ext) == name then
+							local r = fs.combine(base, file)
+							if fs.exists(r) and not fs.isDir(r) then
+								return r
+							end
 						end
 					end
 				end

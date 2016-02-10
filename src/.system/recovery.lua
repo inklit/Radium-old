@@ -1,5 +1,5 @@
 -- .system/recovery.lua
--- run by bootloader when a fatal error is encountered during boot
+-- run by bootloader when a fatal error is encountered
 
 local args = {...}
 
@@ -24,7 +24,7 @@ pcall(function()
 end)
 
 -- tell user what happened
-print("A fatal error has been encountered while booting Radium.")
+print("A fatal error has been encountered in Radium.")
 print("Please report this and provide the following information:")
 print()
 printError(err)
