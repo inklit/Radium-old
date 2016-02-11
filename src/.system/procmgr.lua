@@ -55,6 +55,13 @@ function module.new(file, env, ...)
 		status = module.pstatus.ready;
 	}
 
+	env.require = function(name)
+		assert(type(name) == "string", "expected string")
+		local r = system.libs.resolve(name, ptable.cwd)
+		assert(r, "failed to resolve library " .. name)
+		return system.libs.load(r)
+	end
+
 	-- don't replace with table.concat, we need to handle
 	-- stupid arguments
 	ptable.cmdLine = file .. " "
