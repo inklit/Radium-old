@@ -1,4 +1,4 @@
--- lib/ini.lua
+-- .system/ini.lua
 -- an INI file parsing library
 
 local module = {}
@@ -36,7 +36,7 @@ function module.load(file)
 			section = s
 			ini[section] = ini[section] or {}
 		end
-		local key, value = line:match("^(%w+)%s*=%s*(.+)$")
+		local key, value = line:match("^([%w-_]+)%s*=%s*(.+)$")
 		if key and value then
 			if tonumber(key) then key = tonumber(key) end
 			if tonumber(value) then value = tonumber(value) end
