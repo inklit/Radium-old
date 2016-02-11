@@ -103,11 +103,17 @@ function system.loadModule(name)
 	if not ok then
 		return false, out
 	else
-		setmetatable(out, {
-			__tostring = function()
+		if getmetatable(out) then
+			getmetatable(out).__tostring = function()
 				return "Core Module (" .. name .. ")"
 			end
-		})
+		else
+			setmetatable(out, {
+				__tostring = function()
+					return "Core Module (" .. name .. ")"
+				end
+			})
+		end
 
 		system[name] = out
 		return true
