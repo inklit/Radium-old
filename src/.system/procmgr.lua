@@ -47,12 +47,15 @@ function module.new(file, env, ...)
 
 	env.__PID__ = pid
 
+	local parent = getfenv(2).__PID__ or -1
+
 	local ptable = {
 		pid = pid;
 		path = file;
 		env = env;
 		cwd = fs.getDir(file);
 		status = module.pstatus.ready;
+		parent = (parent >= 0 and getProcess(parent));
 	}
 
 	env.require = function(name)
@@ -165,11 +168,22 @@ function module.getCmdLine(pid)
 	return proc.cmdLine
 end
 
+function module.getParent(pid)
+	local proc = getProcess(pid)
+	return (proc.parent and proc.parent.pid) or -1
+end
+
 function module.kill(pid)
 	-- TODO: Inform the process of its murder
 	local proc = getProcess(pid)
 	proc.status = module.pstatus.dead
 	os.queueEvent("process_dead", pid)
+	-- kill children
+	for _, v in pairs(processes) do
+		if v.parent and v.parent.pid == pid then
+			module.kill(v.pid)
+		end
+	end
 end
 
 local function checkProcessStatus(proc)
