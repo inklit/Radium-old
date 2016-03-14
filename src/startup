@@ -1,0 +1,48 @@
+-- startup
+-- runs on boot and loads the main boot script
+-- performs a TLCO to clean up some craftOS crap
+
+local bootfile = "boot/boot.lua"
+local recfile = "boot/recovery.lua"
+
+if not _TLCO then
+	_G._TLCO = true
+
+	local function recovery(err)
+		local f, e = loadfile(recfile)
+		if f then
+			f(err)
+		else
+			printError("Failed to load recovery")
+			printError(e or "file missing")
+		end
+		sleep(10)
+		os.shutdown()
+	end
+
+	local pe = _G.printError
+
+	function _G.printError()
+		_G.printError = pe
+
+		term.redirect(term.native())
+		term.setBackgroundColor(colors.black)
+		term.setTextColor(colors.white)
+		term.setCursorPos(1,1)
+		term.setCursorBlink(false)
+		term.clear()
+		_G.shell = nil
+
+		local f, e = loadfile(bootfile)
+		if not f then
+			recovery(e or "file missing")
+		else
+			local ok, e = pcall(f)
+			if not ok then
+				recovery(e or "file missing")
+			end
+		end
+	end
+
+	os.queueEvent("terminate")
+end
