@@ -10,6 +10,7 @@ local function clear(c)
 	term.setBackgroundColor(c or colors.black)
 	term.setTextColor(colors.white)
 	term.setCursorPos(1,1)
+	term.setCursorBlink(false)
 	term.clear()
 end
 
