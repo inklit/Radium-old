@@ -6,7 +6,7 @@ local function isEqual(a, b)
 	assert(type(b) == "table", "expected table, table")
 	assert(a.major and a.minor and a.patch and a.label, "arguments should be semver objects")
 	assert(b.major and b.minor and b.patch and b.label, "arguments should be semver objects")
-	return a.major == b.major and a.minor == b.minor and a.patch == b.patch and a.label == b.label
+	return a.major == b.major and a.minor == b.minor and a.patch == b.patch
 end
 
 -- returns true if a is less than b, else false
