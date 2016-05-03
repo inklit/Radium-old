@@ -58,8 +58,17 @@ local function crash(err)
 	print()
 	printCenter("If this issue persists, please report this and post the contents of the crash.dmp file.")
 	print()
-	printCenter("Press any key to shutdown.")
-	os.pullEvent("key")
+	printCenter("Press any key to shutdown, or 'c' to enter CraftOS shell.")
+	local e = {os.pullEventRaw("key")}
+	if e[2] == keys.c then
+		-- clear event queue
+		sleep(0)
+		term.setBackgroundColor(colors.black)
+		term.setTextColor(colors.white)
+		term.clear()
+		term.setCursorPos(1,1)
+		dofile("rom/programs/shell")
+	end
 	os.shutdown()
 end
 
