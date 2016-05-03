@@ -1,3 +1,6 @@
+-- boot/procmgr.lua
+-- system process manager
+
 local procmgr = {}
 
 procmgr.procs = {}
