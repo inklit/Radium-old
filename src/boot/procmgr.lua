@@ -58,6 +58,33 @@ local function createProcess(file, args, parent, cwd, env)
 	local pid = nextPID() -- prevent processes from modifying own pid
 	p.parent = parent or {}
 
+	-- environment fuckery
+	-- should probably move this into it's own module or at least function at some point?
+
+	p.env._G = p.env
+	p.env._ENV = p.env
+	p.env.os = setmetatable({}, {__index = _G.os})
+
+	function p.env.os.run(env, file, ...)
+		system.expect(env, "table", 1)
+		system.expect(file, "string", 2)
+		setmetatable(env, {__index = p.env})
+		local f, e = system.loadfile(file, env)
+		if f then
+			local ok, err = pcall(f, ...)
+			if not ok then
+				if e ~= "" then
+					printError(e)
+				end
+			else
+				return true
+			end
+		elseif e ~= "" then
+			printError(e)
+		end
+		return false
+	end
+
 	p.env.process = {}
 	for k,v in pairs(procmgr.public) do
 		p.env.process[k] = v
@@ -69,6 +96,16 @@ local function createProcess(file, args, parent, cwd, env)
 		system.expect(cwd, "string", 4, true)
 		return createProcess(file, args, p, env)
 	end
+
+	-- TODO, improve this shit
+	function p.env.require(name)
+		system.expect(name, "string", 1)
+		return system.loadAPI(system.paths.locateFile(name, system.paths.LIBPATH, system.paths.LIBEXT, p.cwd))
+	end
+
+	p.env.process.this = p
+
+	-- end of environment fuckery
 
 	p.pid = pid
 	p.co = coroutine.create(f)

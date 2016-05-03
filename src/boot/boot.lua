@@ -40,9 +40,9 @@ function system.loadAPI(file)
 
 	local e = setmetatable({}, {__index = _G})
 	local f, err = loadfile(file, e)
-	assert(f, err)
+	if not f then error(err, 2) end
 	local ok, out = pcall(f)
-	assert(ok, out)
+	if not ok then error(out, 2) end
 	if out ~= nil then
 		return out
 	else
@@ -54,10 +54,13 @@ function system.loadAPI(file)
 	end
 end
 
-local semver = assert(system.loadAPI("lib/semver.lua"), "failed to load semver.lua")
-system.version = semver.new(0, 1, 0, "alpha")
+system.paths = assert(system.loadAPI("boot/paths.lua"), "failed to load pathmgr.lua")
 
 local procmgr = assert(system.loadAPI("boot/procmgr.lua"), "failed to load procmgr.lua")
+
+local semver = system.loadAPI(assert(system.paths.locateFile("semver", system.paths.LIBPATH, system.paths.LIBEXT), "failed to find semver library"))
+
+system.version = semver.new(0, 1, 0, "alpha")
 
 procmgr.startRoot("rom/programs/shell")
 procmgr.loop()
